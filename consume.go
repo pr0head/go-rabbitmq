@@ -28,6 +28,35 @@ type Consumer struct {
 	logger    Logger
 }
 
+type ConsumerInterface interface {
+	// StartConsuming starts n goroutines where n="ConsumeOptions.QosOptions.Concurrency".
+	// Each goroutine spawns a handler that consumes off of the qiven queue which binds to the routing key(s).
+	// The provided handler is called once for each message. If the provided queue doesn't exist, it
+	// will be created on the cluster
+	StartConsuming(handler Handler, queue string, routingKeys []string, optionFuncs ...func(*ConsumeOptions)) error
+
+	// Disconnect disconnects both the channel and the connection.
+	// This method doesn't throw a reconnect, and should be used when finishing a program.
+	// IMPORTANT: If this method is executed before StopConsuming, it could cause unexpected behavior
+	// such as messages being processed, but not being acknowledged, thus being requeued by the broker
+	Disconnect()
+
+	// StopConsuming stops the consumption of messages.
+	// The consumer should be discarded as it's not safe for re-use.
+	// This method sends a basic.cancel notification.
+	// The consumerName is the name or delivery tag of the amqp consumer we want to cancel.
+	// When noWait is true, do not wait for the server to acknowledge the cancel.
+	// Only use this when you are certain there are no deliveries in flight that
+	// require an acknowledgment, otherwise they will arrive and be dropped in the
+	// client without an ack, and will not be redelivered to other consumers.
+	// IMPORTANT: Since the streadway library doesn't provide a way to retrieve the consumer's tag after the creation
+	// it's imperative for you to set the name when creating the consumer, if you want to use this function later
+	// a simple uuid4 should do the trick, since it should be unique.
+	// If you start many consumers, you should store the name of the consumers when creating them, such that you can
+	// use them in a for to stop all the consumers.
+	StopConsuming(consumerName string, noWait bool)
+}
+
 // ConsumerOptions are used to describe a consumer's configuration.
 // Logging set to true will enable the consumer to print to stdout
 // Logger specifies a custom Logger interface implementation overruling Logging.

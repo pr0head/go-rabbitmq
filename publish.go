@@ -107,6 +107,19 @@ type Publisher struct {
 	logger Logger
 }
 
+type PublisherInterface interface {
+	// NotifyReturn registers a listener for basic.return methods.
+	// These can be sent from the server when a publish is undeliverable either from the mandatory or immediate flags.
+	NotifyReturn() <-chan Return
+
+	// Publish publishes the provided data to the given routing keys over the connection
+	Publish(data []byte, routingKeys []string, optionFuncs ...func(*PublishOptions)) error
+
+	// StopPublishing stops the publishing of messages.
+	// The publisher should be discarded as it's not safe for re-use
+	StopPublishing()
+}
+
 // PublisherOptions are used to describe a publisher's configuration.
 // Logging set to true will enable the consumer to print to stdout
 type PublisherOptions struct {
