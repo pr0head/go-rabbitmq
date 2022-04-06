@@ -53,12 +53,15 @@ type PublisherInterface interface {
 	// These can be sent from the server when a publish is undeliverable either from the mandatory or immediate flags.
 	NotifyReturn() <-chan Return
 
+	// NotifyPublish registers a listener for publish confirmations, must set ConfirmPublishings option
+	NotifyPublish() <-chan Confirmation
+
 	// Publish publishes the provided data to the given routing keys over the connection
 	Publish(data []byte, routingKeys []string, optionFuncs ...func(*PublishOptions)) error
 
-	// StopPublishing stops the publishing of messages.
+	// Close closes the publisher and releases resources
 	// The publisher should be discarded as it's not safe for re-use
-	StopPublishing()
+	Close() error
 }
 
 // PublisherOptions are used to describe a publisher's configuration.
