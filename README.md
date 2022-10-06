@@ -2,7 +2,7 @@
 
 Wrapper of [rabbitmq/amqp091-go](https://github.com/rabbitmq/amqp091-go) that provides reconnection logic and sane defaults. Hit the project with a star if you find it useful ⭐
 
-Supported by [Qvault](https://qvault.io)
+Supported by [Boot.dev](https://boot.dev)
 
 [![](https://godoc.org/github.com/wagslane/go-rabbitmq?status.svg)](https://godoc.org/github.com/wagslane/go-rabbitmq)![Deploy](https://github.com/wagslane/go-rabbitmq/workflows/Tests/badge.svg)
 
@@ -18,6 +18,7 @@ The goal with `go-rabbitmq` is to still provide most all of the nitty-gritty fun
 * Multithreaded consumers via a handler function
 * Reasonable defaults
 * Flow control handling
+* TCP block handling
 
 ## ⚙️ Installation
 
@@ -92,7 +93,7 @@ if err != nil {
 ### Default options
 
 ```go
-publisher, _, err := rabbitmq.NewPublisher("amqp://user:pass@localhost", rabbitmq.Config{})
+publisher, err := rabbitmq.NewPublisher("amqp://user:pass@localhost", rabbitmq.Config{})
 if err != nil {
     log.Fatal(err)
 }
